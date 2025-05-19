@@ -1,7 +1,14 @@
 import os
+from tensorflow.keras.callbacks import EarlyStopping
 from preprocess import load_data
 from model import build_model
 from plot import plot_history
+
+early_stopping = EarlyStopping(
+    monitor='val_loss',
+    patience=3,
+    restore_best_weights=True
+)
 
 def main():
     (x_train, y_train), _ = load_data()
@@ -16,16 +23,17 @@ def main():
     history = model.fit(
         partial_x_train,
         partial_y_train,
-        epochs=20,
+        epochs=10,
         batch_size=512,
-        validation_data=(x_val, y_val)
+        validation_data=(x_val, y_val),
+        callbacks = [early_stopping]
     )
 
     os.makedirs("saved_models", exist_ok=True)
-    model.save("saved_models/model_v1.keras")
+    model.save("saved_models/model_v2.keras")
 
     os.makedirs("graphs", exist_ok=True)
-    plot_history(history, "graphs/graph_v1.jpg")
+    plot_history(history, "graphs/graph_v2.jpg")
 
 if __name__ == "__main__":
     main()
